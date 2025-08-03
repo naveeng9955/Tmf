@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do List</title>
+  <style>
+    table, th, td {
+      border: 1px solid #00745d;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+    }
+    th {
+      background-color: #005eff;
+    }
+    button {
+      margin: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>To-Do List</h2>
+
+<!-- Form to add new todo -->
+<table>
+  <tr>
+    <td><label>Date:</label></td>
+    <td><input type="date" id="date"></td>
+  </tr>
+  <tr>
+    <td><label>ToDo:</label></td>
+    <td><input type="text" id="todo"></td>
+  </tr>
+  <tr>
+    <td><label>Target Date & Time:</label></td>
+    <td><input type="datetime-local" id="target"></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><button onclick="addNewTodo()">SUBMIT</button></td>
+  </tr>
+</table>
+
+<!-- Table for displaying todo list -->
+<table id="todoTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Description</th>
+      <th>Target Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  // Initial sample list
+  let todoList = [
+    { todoId: 1, todoDesc: "Read book", targetDate: "2025-08-01T10:00", todoStatus: "PENDING" },
+    { todoId: 2, todoDesc: "Practice coding", targetDate: "2025-08-02T15:00", todoStatus: "IN-PROGRESS" },
+  ];
+
+  let todoId = todoList.length > 0 ? Math.max(...todoList.map(t => t.todoId)) : 0;
+
+  // Function to refresh the table
+  function refreshTable() {
+    const tbody = document.querySelector("#todoTable tbody");
+    tbody.innerHTML = ""; // Clear existing rows
+    todoList.forEach(renderTodoRow);
+  }
+
+  // Function to render a single todo row
+  function renderTodoRow(todo) {
+    const tr = document.createElement("tr");
+
+    // Logic to disable buttons based on status
+    const disablePending = todo.todoStatus !== "PENDING";
+    const disableInProgress = todo.todoStatus === "COMPLETE";
+    const disableComplete = todo.todoStatus === "COMPLETE";
+
+    tr.innerHTML = `
+      <td>${todo.todoId}</td>
+      <td>${todo.todoDesc}</td>
+      <td>${todo.targetDate}</td>
+      <td>${todo.todoStatus}</td>
+      <td>
+        <button onclick="updateStatus(${todo.todoId}, 'PENDING')" ${disablePending ? 'disabled' : ''}>Pending</button>
+        <button onclick="updateStatus(${todo.todoId}, 'IN-PROGRESS')" ${disableInProgress ? 'disabled' : ''}>In Progress</button>
+        <button onclick="updateStatus(${todo.todoId}, 'COMPLETE')" ${disableComplete ? 'disabled' : ''}>Complete</button>
+      </td>
+    `;
+
+    document.querySelector("#todoTable tbody").appendChild(tr);
+  }
+
+  // Add new todo item
+  function addNewTodo() {
+    const desc = document.getElementById("todo").value;
+    const target = document.getElementById("target").value;
+
+    if (!desc || !target) {
+      alert("Please fill in the ToDo and Target Date fields.");
+      return;
+    }
+
+    todoId++;
+    const newTodo = {
+      todoId: todoId,
+      todoDesc: desc,
+      targetDate: target,
+      todoStatus: "PENDING"
+    };
+
+    todoList.push(newTodo);
+    refreshTable();
+
+    // Clear form
+    document.getElementById("todo").value = "";
+    document.getElementById("target").value = "";
+  }
+
+  // Update the status of a todo
+  function updateStatus(id, status) {
+    const todo = todoList.find(t => t.todoId === id);
+    if (todo) {
+      todo.todoStatus = status;
+      refreshTable();
+    }
+  }
+
+  // Load initial data
+  refreshTable();
+</script>
+
+</body>
+</html>
